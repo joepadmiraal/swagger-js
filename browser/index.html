@@ -5,9 +5,23 @@
     <script type="text/javascript">
       // initialize swagger
       var swagger = new SwaggerClient({
-        url: "http://petstore.swagger.io/api/api-docs",
-        success: function() {}
+        //url: "http://petstore.swagger.io/api/api-docs",
+        //success: function() {}
+        url: "http://localhost:8080/apidocs/service.json",
+        success: function() {
+          document.getElementById("mydata").innerHTML = 'test';
+          console.log(swagger.apis);
+          console.log(swagger.apis.headtoheads.apis.getJoinedHeadToHeads);
+          // swagger.apis.pet.getPetById({petId:1},{responseContentType: 'application/json'}, function(data) {
+          //   document.getElementById("mydata").innerHTML = JSON.stringify(data.obj);
+          // });
+        }
+
       });
     </script>
   </head>
+    <body>
+    <div id="mydata"></div>
+  </body>
+
 </html>
