@@ -28,6 +28,17 @@ var intArrayQP = {
   },
   collectionFormat: 'csv'
 };
+var quantityFD = {
+  in: 'formData',
+  name: 'quantity',
+  type: 'integer',
+  format: 'int32'
+};
+var nameFD = {
+  in: 'formData',
+  name: 'name',
+  type: 'string'
+};
 
 describe('operations', function () {
   it('should generate a url', function () {
@@ -57,7 +68,7 @@ describe('operations', function () {
     expect(url).toBe('http://localhost/path?quantity=3&weight=100.3');
   });
 
-  it('should generate a url with queryparams array, multi', function () {
+  it('should generate a url with queryparams array, csv', function () {
     var parameters = [
       intArrayQP
     ];
@@ -111,7 +122,7 @@ describe('operations', function () {
       intArray: [3,4,5]
     });
 
-    expect(url).toBe('http://localhost/path?intArray=3\\t4\\t5');
+    expect(url).toBe('http://localhost/path?intArray=3%094%095');
   });
 
   it('should generate a url with queryparams array, spaces', function () {
@@ -134,6 +145,28 @@ describe('operations', function () {
     });
 
     expect(url).toBe('http://localhost/path?intArray=3%204%205');
+  });
+
+  it('should generate a url with queryparams array, multi', function () {
+    var parameters = [
+      {
+        in: 'query',
+        name: 'intArray',
+        type: 'array',
+        items: {
+          type: 'integer',
+          format: 'int32'
+        },
+        collectionFormat: 'multi'
+      }
+    ];
+    var op = new Operation({}, 'http', 'test', 'get', '/path', { parameters: parameters },
+                                   {}, {}, new auth.SwaggerAuthorizations());
+    var url = op.urlify({
+      intArray: [3,4,5]
+    });
+
+    expect(url).toBe('http://localhost/path?intArray=3&intArray=4&intArray=5');
   });
 
   it('should generate a url with queryparams array, brackets', function () {
@@ -286,6 +319,39 @@ describe('operations', function () {
     );
 
     expect(url).toBe('http://localhost/2015-01-30');
+  });
+
+  it('should generate a url with empty-fragment removed from path', function () {
+    var parameters = [];
+    var op = new Operation({}, 'http', 'test', 'get', '/foo#', { parameters: parameters },
+                                   {}, {}, new auth.SwaggerAuthorizations());
+    var url = op.urlify();
+
+    expect(url).toBe('http://localhost/foo');
+  });
+
+  it('should generate a url with fragment removed from path', function () {
+    var parameters = [
+      {
+        in: 'path',
+        name: 'name',
+        type: 'string'
+      },
+      {
+        in: 'query',
+        name: 'age',
+        type: 'integer',
+        format: 'int32'
+      }
+    ];
+    var op = new Operation({}, 'http', 'test', 'get', '/foo/{name}#fragment', { parameters: parameters },
+                                   {}, {}, new auth.SwaggerAuthorizations());
+    var url = op.urlify({
+      name: 'tony',
+      age: 42
+    });
+
+    expect(url).toBe('http://localhost/foo/tony?age=42');
   });
 
   it('should get a string array signature', function () {
@@ -610,5 +676,10 @@ describe('operations', function () {
     expect(op.matchesAccept('application/json')).toEqual(true);
   });
 
+  it('should generate a x-www-form-urlencoded body', function() {
+    var parameters = [quantityFD, nameFD];
+    var op = new Operation({}, 'http', 'test', 'get', '/path', { parameters: parameters },
+                                   {}, {}, new auth.SwaggerAuthorizations());
+    expect(op.getBody({}, {name: 'Douglas Adams', quantity: 42}, {})).toEqual('quantity=42&name=Douglas%20Adams');
+  });
 });
-

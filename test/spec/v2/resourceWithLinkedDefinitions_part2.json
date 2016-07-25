@@ -24,7 +24,7 @@
       "200": {
         "description": "pet response",
         "schema": {
-          "$ref": "#/Pet"
+          "$ref": "petstore.json#/definitions/Pet"
         }
       },
       "default": {
@@ -38,13 +38,6 @@
   "ErrorModel": {
     "properties": {
       "id": {
-        "type": "string"
-      }
-    }
-  },
-  "Pet": {
-    "properties": {
-      "petId": {
         "type": "string"
       }
     }
